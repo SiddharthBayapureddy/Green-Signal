@@ -1,0 +1,104 @@
+{
+  "challenge": "red-gate",
+  "description": "Detect brute-force login attempts and lock malicious users",
+  "data": [
+    {
+      "user_id": "alice",
+      "success": true,
+      "timestamp": "2025-01-15T10:23:45Z",
+      "ip": "192.168.1.10"
+    },
+    {
+      "user_id": "bob",
+      "success": false,
+      "timestamp": "2025-01-15T10:24:01Z",
+      "ip": "203.0.113.45"
+    },
+    {
+      "user_id": "bob",
+      "success": false,
+      "timestamp": "2025-01-15T10:24:15Z",
+      "ip": "203.0.113.45"
+    },
+    {
+      "user_id": "bob",
+      "success": false,
+      "timestamp": "2025-01-15T10:24:28Z",
+      "ip": "203.0.113.45"
+    },
+    {
+      "user_id": "bob",
+      "success": false,
+      "timestamp": "2025-01-15T10:24:42Z",
+      "ip": "203.0.113.45"
+    },
+    {
+      "user_id": "charlie",
+      "success": true,
+      "timestamp": "2025-01-15T10:25:10Z",
+      "ip": "192.168.1.20"
+    },
+    {
+      "user_id": "dave",
+      "success": false,
+      "timestamp": "2025-01-15T10:25:30Z",
+      "ip": "198.51.100.22"
+    },
+    {
+      "user_id": "dave",
+      "success": false,
+      "timestamp": "2025-01-15T10:25:45Z",
+      "ip": "198.51.100.22"
+    },
+    {
+      "user_id": "dave",
+      "success": false,
+      "timestamp": "2025-01-15T10:26:01Z",
+      "ip": "198.51.100.22"
+    },
+    {
+      "user_id": "dave",
+      "success": false,
+      "timestamp": "2025-01-15T10:26:18Z",
+      "ip": "198.51.100.22"
+    },
+    {
+      "user_id": "dave",
+      "success": false,
+      "timestamp": "2025-01-15T10:26:33Z",
+      "ip": "198.51.100.22"
+    },
+    {
+      "user_id": "eve",
+      "success": true,
+      "timestamp": "2025-01-15T10:27:00Z",
+      "ip": "192.168.1.30"
+    },
+    {
+      "user_id": "alice",
+      "success": true,
+      "timestamp": "2025-01-15T10:27:30Z",
+      "ip": "192.168.1.10"
+    },
+    {
+      "user_id": "frank",
+      "success": false,
+      "timestamp": "2025-01-15T10:28:00Z",
+      "ip": "192.168.1.40"
+    },
+    {
+      "user_id": "frank",
+      "success": true,
+      "timestamp": "2025-01-15T10:28:15Z",
+      "ip": "192.168.1.40"
+    }
+  ],
+  "hints": [
+    "Look for users with 3 or more consecutive failed login attempts",
+    "Brute-force attacks show rapid sequential failures from same IP"
+  ],
+  "correct_answer": {
+    "users_to_lock": ["bob", "dave"],
+    "reason": "Users with 3+ consecutive failed attempts indicate brute-force attack pattern"
+  }
+}
