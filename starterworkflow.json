@@ -15,7 +15,7 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:3000/api/challenges/green-signal",
+        "url": "https://LynqAtmos2025.onrender.com/api/challenges/green-signal",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
