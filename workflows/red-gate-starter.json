@@ -1,0 +1,241 @@
+{
+  "name": "Red Gate - Intrusion Detector (Starter)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "start-node",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/api/challenges/red-gate",
+        "method": "GET",
+        "options": {}
+      },
+      "id": "fetch-data",
+      "name": "Fetch Login Attempts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [450, 300],
+      "notes": "Gets the login attempts data from the CTF backend"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $json.data }}",
+        "options": {}
+      },
+      "id": "extract-data",
+      "name": "Extract Data Array",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [650, 300],
+      "notes": "Extracts just the data array for processing"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "prompt-text",
+              "name": "prompt",
+              "type": "string",
+              "value": "=Analyze the following login attempts and identify users performing brute-force attacks (3+ consecutive failed logins).\n\nData: {{ JSON.stringify($json) }}\n\nRespond with ONLY a JSON object in this exact format:\n{\n  \"users\": [\"user1\", \"user2\"],\n  \"reasoning\": \"Brief explanation of why these users were flagged\"\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "build-prompt",
+      "name": "Build LLM Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [850, 300],
+      "notes": "Prepares the prompt for your LLM"
+    },
+    {
+      "parameters": {
+        "instructions": "TODO: Configure your LLM here!\n\nOptions:\n1. Use OpenAI node (add API key)\n2. Use Flowise endpoint\n3. Use any LLM provider\n\nThe LLM should analyze the login data and return JSON with 'users' and 'reasoning' fields.",
+        "text": "={{ $json.prompt }}"
+      },
+      "id": "llm-analysis",
+      "name": "LLM Analysis (CONFIGURE THIS)",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1050, 200],
+      "notes": "⚠️ PLAYERS: Replace this sticky note with your LLM node!"
+    },
+    {
+      "parameters": {
+        "jsCode": "// TODO: Parse LLM response\n// This is a placeholder - replace with actual LLM output parsing\n\n// Example of what you should do:\n// const llmResponse = $input.first().json.llmOutput;\n// const parsed = JSON.parse(llmResponse);\n\n// For now, this is just a template:\nreturn [{\n  json: {\n    users: [\"bob\", \"dave\"], // Replace with LLM output\n    reasoning: \"Users with 3+ consecutive failed login attempts\" // Replace with LLM reasoning\n  }\n}];"
+      },
+      "id": "parse-llm",
+      "name": "Parse LLM Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 300],
+      "notes": "Extract users and reasoning from LLM response"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/api/validate/lock-user",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "users",
+              "value": "={{ $json.users }}"
+            },
+            {
+              "name": "reasoning",
+              "value": "={{ $json.reasoning }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "submit-answer",
+      "name": "Submit to Validation API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1450, 300],
+      "notes": "Submits your agent's decision to get the flag!"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.success }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-success",
+      "name": "Check if Flag Captured",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { flag: $json.flag, message: $json.message } }}",
+        "options": {}
+      },
+      "id": "success",
+      "name": "🎉 FLAG CAPTURED!",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1850, 200],
+      "notes": "Success! You got the flag!"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { error: $json.message, hint: $json.hint } }}",
+        "options": {}
+      },
+      "id": "failure",
+      "name": "❌ Try Again",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1850, 400],
+      "notes": "Failed - check the hint and try again"
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Login Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Login Attempts": {
+      "main": [
+        [
+          {
+            "node": "Extract Data Array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Data Array": {
+      "main": [
+        [
+          {
+            "node": "Build LLM Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build LLM Prompt": {
+      "main": [
+        [
+          {
+            "node": "Parse LLM Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse LLM Response": {
+      "main": [
+        [
+          {
+            "node": "Submit to Validation API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit to Validation API": {
+      "main": [
+        [
+          {
+            "node": "Check if Flag Captured",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Flag Captured": {
+      "main": [
+        [
+          {
+            "node": "🎉 FLAG CAPTURED!",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "❌ Try Again",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
